@@ -1,0 +1,626 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attendance Management</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f3f6fc;
+    color: #25324b;
+}
+
+.header {
+    background: #2563eb;
+    color: white;
+    padding: 22px 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h2 {
+    font-size: 23px;
+}
+
+.header p {
+    font-size: 13px;
+    margin-top: 5px;
+    opacity: .85;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.topbar h2 {
+    font-size: 24px;
+}
+
+input, button {
+    padding: 11px 14px;
+    border-radius: 7px;
+    font-size: 14px;
+}
+
+input {
+    border: 1px solid #dce3ef;
+    outline: none;
+    background: white;
+}
+
+input:focus {
+    border-color: #2563eb;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: white;
+    padding: 23px;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px #00000008;
+}
+
+.card p {
+    color: #718096;
+    font-size: 14px;
+}
+
+.card h1 {
+    margin-top: 12px;
+    font-size: 30px;
+}
+
+.blue { color: #2563eb; }
+.green { color: #16a34a; }
+.red { color: #dc2626; }
+
+.panel {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px #00000008;
+    margin-bottom: 22px;
+}
+
+.panel h3 {
+    margin-bottom: 20px;
+    font-size: 19px;
+}
+
+.form {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.form input {
+    flex: 1;
+    min-width: 150px;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .2s;
+}
+
+button:hover {
+    opacity: .85;
+}
+
+.add-btn {
+    background: #2563eb;
+    color: white;
+}
+
+.present-btn {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.absent-btn {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.delete-btn {
+    background: #f1f5f9;
+    color: #64748b;
+    padding: 8px 10px;
+}
+
+.filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+}
+
+.filters input {
+    flex: 1;
+    min-width: 150px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 15px 12px;
+    text-align: left;
+    border-bottom: 1px solid #edf0f5;
+    font-size: 14px;
+}
+
+th {
+    background: #f8fafc;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.badge {
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.badge.present {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.badge.absent {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.badge.pending {
+    background: #fef3c7;
+    color: #a16207;
+}
+
+.actions {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+}
+
+.empty {
+    text-align: center;
+    padding: 30px;
+    color: #94a3b8;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+@media(max-width:700px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        padding: 18px;
+    }
+
+    .container {
+        padding: 0 12px;
+    }
+
+    .panel {
+        padding: 15px;
+        overflow-x: auto;
+    }
+
+    table {
+        min-width: 650px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <div>
+        <h2>📋 Attendance Manager</h2>
+        <p>Simple Employee Attendance System</p>
+    </div>
+    <div id="today"></div>
+</header>
+
+<div class="container">
+
+    <div class="topbar">
+        <h2>Dashboard</h2>
+        <input type="date" id="attendanceDate">
+    </div>
+
+    <!-- DASHBOARD CARDS -->
+    <div class="cards">
+
+        <div class="card">
+            <p>Total Employees</p>
+            <h1 class="blue" id="total">0</h1>
+        </div>
+
+        <div class="card">
+            <p>Present Employees</p>
+            <h1 class="green" id="present">0</h1>
+        </div>
+
+        <div class="card">
+            <p>Absent Employees</p>
+            <h1 class="red" id="absent">0</h1>
+        </div>
+
+    </div>
+
+    <!-- ADD EMPLOYEE -->
+    <div class="panel">
+        <h3>➕ Add New Employee</h3>
+
+        <div class="form">
+            <input
+                type="text"
+                id="empId"
+                placeholder="Employee ID"
+            >
+
+            <input
+                type="text"
+                id="empName"
+                placeholder="Employee Name"
+            >
+
+            <button class="add-btn" onclick="addEmployee()">
+                + Add Employee
+            </button>
+        </div>
+    </div>
+
+    <!-- ATTENDANCE TABLE -->
+    <div class="panel">
+
+        <h3>👥 Employee Attendance</h3>
+
+        <div class="filters">
+            <input
+                type="text"
+                id="search"
+                placeholder="Search employee..."
+                oninput="render()"
+            >
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Mark Attendance</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="employeeTable"></tbody>
+        </table>
+
+    </div>
+
+    <!-- ATTENDANCE SUMMARY -->
+    <div class="panel">
+        <h3>📊 Attendance Summary</h3>
+        <p id="summary" style="color:#64748b;">
+            Attendance details will appear here.
+        </p>
+    </div>
+
+</div>
+
+<div class="footer">
+    Attendance Management System © 2026
+</div>
+
+<script>
+
+// GET TODAY'S DATE
+function getToday() {
+    const date = new Date();
+    const offset = date.getTimezoneOffset();
+    return new Date(date.getTime() - offset * 60000)
+        .toISOString().split("T")[0];
+}
+
+// INITIAL DATA
+let employees = JSON.parse(
+    localStorage.getItem("employees")
+) || [];
+
+let attendance = JSON.parse(
+    localStorage.getItem("attendance")
+) || {};
+
+const dateInput = document.getElementById("attendanceDate");
+
+dateInput.value = getToday();
+
+document.getElementById("today").innerText =
+    new Date().toLocaleDateString("en-IN");
+
+// SAVE DATA
+function saveData() {
+    localStorage.setItem(
+        "employees",
+        JSON.stringify(employees)
+    );
+
+    localStorage.setItem(
+        "attendance",
+        JSON.stringify(attendance)
+    );
+}
+
+// GET SELECTED DATE
+function selectedDate() {
+    return dateInput.value;
+}
+
+// ADD EMPLOYEE
+function addEmployee() {
+
+    const id = document.getElementById("empId").value.trim();
+    const name = document.getElementById("empName").value.trim();
+
+    if (!id || !name) {
+        alert("Please enter Employee ID and Name!");
+        return;
+    }
+
+    const exists = employees.some(
+        emp => emp.id.toLowerCase() === id.toLowerCase()
+    );
+
+    if (exists) {
+        alert("Employee ID already exists!");
+        return;
+    }
+
+    employees.push({
+        id: id,
+        name: name
+    });
+
+    saveData();
+
+    document.getElementById("empId").value = "";
+    document.getElementById("empName").value = "";
+
+    render();
+
+    alert("Employee added successfully!");
+}
+
+// MARK ATTENDANCE
+function markAttendance(id, status) {
+
+    const date = selectedDate();
+
+    if (!date) {
+        alert("Please select a date!");
+        return;
+    }
+
+    if (!attendance[date]) {
+        attendance[date] = {};
+    }
+
+    attendance[date][id] = status;
+
+    saveData();
+    render();
+}
+
+// DELETE EMPLOYEE
+function deleteEmployee(id) {
+
+    if (!confirm("Are you sure you want to delete this employee?")) {
+        return;
+    }
+
+    employees = employees.filter(
+        emp => emp.id !== id
+    );
+
+    // Remove employee from attendance history
+    Object.keys(attendance).forEach(date => {
+        delete attendance[date][id];
+    });
+
+    saveData();
+    render();
+}
+
+// RENDER EMPLOYEE TABLE
+function render() {
+
+    const date = selectedDate();
+    const search = document
+        .getElementById("search")
+        .value.toLowerCase();
+
+    const tbody = document.getElementById("employeeTable");
+
+    tbody.innerHTML = "";
+
+    let presentCount = 0;
+    let absentCount = 0;
+
+    const records = attendance[date] || {};
+
+    employees.forEach(emp => {
+
+        const status = records[emp.id] || "Not Marked";
+
+        if (status === "Present") presentCount++;
+        if (status === "Absent") absentCount++;
+
+        if (
+            !emp.name.toLowerCase().includes(search) &&
+            !emp.id.toLowerCase().includes(search)
+        ) {
+            return;
+        }
+
+        const row = document.createElement("tr");
+
+        const idCell = document.createElement("td");
+        idCell.textContent = emp.id;
+
+        const nameCell = document.createElement("td");
+        nameCell.textContent = emp.name;
+
+        const statusCell = document.createElement("td");
+
+        const badge = document.createElement("span");
+        badge.className = "badge " +
+            (status === "Present" ? "present" :
+            status === "Absent" ? "absent" : "pending");
+
+        badge.textContent = status;
+        statusCell.appendChild(badge);
+
+        const actionCell = document.createElement("td");
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const presentButton = document.createElement("button");
+        presentButton.className = "present-btn";
+        presentButton.textContent = "Present";
+        presentButton.onclick = () =>
+            markAttendance(emp.id, "Present");
+
+        const absentButton = document.createElement("button");
+        absentButton.className = "absent-btn";
+        absentButton.textContent = "Absent";
+        absentButton.onclick = () =>
+            markAttendance(emp.id, "Absent");
+
+        actions.appendChild(presentButton);
+        actions.appendChild(absentButton);
+        actionCell.appendChild(actions);
+
+        const deleteCell = document.createElement("td");
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-btn";
+        deleteButton.textContent = "Delete";
+        deleteButton.onclick = () => deleteEmployee(emp.id);
+
+        deleteCell.appendChild(deleteButton);
+
+        row.appendChild(idCell);
+        row.appendChild(nameCell);
+        row.appendChild(statusCell);
+        row.appendChild(actionCell);
+        row.appendChild(deleteCell);
+
+        tbody.appendChild(row);
+
+    });
+
+    if (employees.length === 0) {
+
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 5;
+        cell.className = "empty";
+        cell.textContent = "No employees added yet.";
+
+        row.appendChild(cell);
+        tbody.appendChild(row);
+
+    } else if (tbody.children.length === 0) {
+
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 5;
+        cell.className = "empty";
+        cell.textContent = "No matching employees found.";
+
+        row.appendChild(cell);
+        tbody.appendChild(row);
+    }
+
+    // UPDATE DASHBOARD
+    document.getElementById("total").innerText =
+        employees.length;
+
+    document.getElementById("present").innerText =
+        presentCount;
+
+    document.getElementById("absent").innerText =
+        absentCount;
+
+    document.getElementById("summary").innerText =
+        "Date: " + date +
+        " | Total: " + employees.length +
+        " | Present: " + presentCount +
+        " | Absent: " + absentCount +
+        " | Not Marked: " +
+        (employees.length - presentCount - absentCount);
+
+}
+
+// DATE CHANGE
+dateInput.addEventListener("change", render);
+
+// INITIAL DISPLAY
+render();
+
+</script>
+
+</body>
+</html>
